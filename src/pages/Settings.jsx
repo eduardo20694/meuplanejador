@@ -1,11 +1,22 @@
-// src/pages/Settings.jsx
-import React from 'react';
+import useDarkMode from "../hooks/useDarkMode";
 
 export default function Settings() {
+  const [darkMode, setDarkMode] = useDarkMode();
+
   return (
-    <div style={{ padding: 20 }}>
-      <h1>Configurações</h1>
-      <p>Aqui vão as configurações do dashboard.</p>
+    <div>
+      <h2>Configurações</h2>
+      <div style={{ marginTop: 20 }}>
+        <label style={{ cursor: "pointer", userSelect: "none", fontWeight: '600' }}>
+          <input
+            type="checkbox"
+            checked={darkMode}
+            onChange={() => setDarkMode(!darkMode)}
+            style={{ marginRight: 8, cursor: "pointer" }}
+          />
+          Ativar Tema Escuro
+        </label>
+      </div>
     </div>
   );
 }
