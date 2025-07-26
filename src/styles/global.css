@@ -1,0 +1,324 @@
+/* global.css */
+
+/* Reset básico para margens e paddings */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* Body, html e root ocupam 100% da altura e largura */
+body, html, #root {
+  height: 100%;
+  font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f3f4f6;
+  color: #1f2937;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Scrollbar estilizada (Chrome, Edge e Firefox) */
+body {
+  scrollbar-width: thin;
+  scrollbar-color: #2563eb #e5e7eb;
+}
+
+body::-webkit-scrollbar {
+  width: 8px;
+}
+
+body::-webkit-scrollbar-track {
+  background: #e5e7eb;
+}
+
+body::-webkit-scrollbar-thumb {
+  background-color: #2563eb;
+  border-radius: 10px;
+  border: 2px solid #e5e7eb;
+}
+
+/* Flex utils */
+.flex {
+  display: flex;
+}
+
+.h-screen {
+  height: 100vh;
+}
+
+/* Cores */
+.bg-gray-100 {
+  background-color: #f3f4f6;
+}
+
+.text-gray-800 {
+  color: #1f2937;
+}
+
+/* Sidebar */
+aside.sidebar {
+  width: 16rem; /* 256px */
+  background-color: white;
+  border-right: 1px solid #e5e7eb;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 2px 0 8px rgba(0,0,0,0.05);
+  transition: width 0.3s ease;
+}
+
+h1.sidebar-title {
+  font-size: 1.75rem;
+  font-weight: 800;
+  margin-bottom: 2rem;
+  color: #111827;
+}
+
+nav.sidebar-nav a {
+  display: block;
+  color: #374151;
+  font-weight: 600;
+  text-decoration: none;
+  margin-bottom: 1rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.375rem;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+nav.sidebar-nav a:hover,
+nav.sidebar-nav a:focus {
+  color: #2563eb;
+  background-color: #e0e7ff;
+  outline: none;
+  box-shadow: 0 0 0 3px #a5b4fc;
+}
+
+/* Main content */
+main.content {
+  flex: 1;
+  padding: 2rem;
+  overflow-y: auto;
+}
+
+h2.main-title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 2rem;
+  color: #111827;
+}
+
+/* Grid responsivo */
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+}
+
+@media (min-width: 768px) {
+  .grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Cartões */
+.card {
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow:
+    0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  transition: box-shadow 0.3s;
+}
+
+.card:hover,
+.card:focus-within {
+  box-shadow:
+    0 20px 25px -5px rgba(37, 99, 235, 0.3),
+    0 10px 10px -5px rgba(37, 99, 235, 0.2);
+}
+
+.card h3 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: #1e40af;
+}
+
+/* Listas */
+ul.list {
+  list-style-type: disc;
+  padding-left: 1.5rem;
+  max-height: 15rem;
+  overflow-y: auto;
+  color: #374151;
+}
+
+ul.list li {
+  margin-bottom: 0.5rem;
+  line-height: 1.4;
+}
+
+/* Botão label para upload */
+.label-button {
+  display: inline-block;
+  margin-bottom: 1rem;
+  cursor: pointer;
+  padding: 0.5rem 1rem;
+  background-color: #2563eb;
+  color: white;
+  border-radius: 0.375rem;
+  font-weight: 600;
+  user-select: none;
+  transition: background-color 0.3s, box-shadow 0.3s;
+  box-shadow: 0 2px 8px rgb(37 99 235 / 0.4);
+}
+
+.label-button:hover,
+.label-button:focus {
+  background-color: #1d4ed8;
+  outline: none;
+  box-shadow: 0 0 0 3px #93c5fd;
+}
+
+/* Input escondido */
+.hidden-input {
+  display: none;
+}
+
+/* Lista de arquivos */
+.file-list {
+  flex: 1;
+  overflow-y: auto;
+  max-height: 15rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  padding: 0.5rem;
+}
+
+.file-list li {
+  color: #374151;
+  font-weight: 500;
+  padding: 0.25rem 0;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.file-list li.empty {
+  font-style: italic;
+  color: #9ca3af;
+  text-align: center;
+}
+
+/* Responsividade extra para sidebar */
+@media (max-width: 768px) {
+  aside.sidebar {
+    width: 100%;
+    height: auto;
+    border-right: none;
+    border-bottom: 1px solid #e5e7eb;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 1rem;
+  }
+
+  nav.sidebar-nav {
+    display: flex;
+    gap: 1rem;
+  }
+
+  main.content {
+    padding: 1rem;
+  }
+
+  .grid {
+    grid-template-columns: 1fr !important;
+    gap: 1rem;
+  }
+}
+
+/* Botões adicionar */
+.label-button {
+  background-color: #2563eb; /* azul padrão */
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  font-weight: 600;
+  border: none;
+  transition: background-color 0.3s ease;
+}
+
+.label-button:hover {
+  background-color: #1d4ed8; /* azul mais escuro */
+}
+
+/* Botão adicionar verde para compromissos */
+.label-button.bg-green-600 {
+  background-color: #16a34a; /* verde */
+}
+
+.label-button.bg-green-600:hover {
+  background-color: #15803d; /* verde escuro */
+}
+
+/* Botão excluir (x) */
+button[title="Excluir tarefa"],
+button[title="Excluir compromisso"] {
+  background: transparent;
+  border: none;
+  color: #ef4444; /* vermelho */
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 1.25rem;
+  line-height: 1;
+  padding: 0 0.25rem;
+  transition: color 0.3s ease;
+}
+
+button[title="Excluir tarefa"]:hover,
+button[title="Excluir compromisso"]:hover {
+  color: #b91c1c; /* vermelho escuro */
+}
+
+/* Tarefa concluída - linha riscada e cor clara */
+.list li label input[type="checkbox"]:checked + span,
+.list li label input[type="checkbox"]:checked {
+  text-decoration: line-through;
+  color: #9ca3af; /* cinza claro */
+}
+
+/* Alternativa (se precisar) - estilo para label marcado */
+.list li label {
+  cursor: pointer;
+  user-select: none;
+}
+
+.list li label input[type="checkbox"] {
+  margin-right: 0.5rem;
+  cursor: pointer;
+}
+
+/* Estilo para o texto da tarefa riscada diretamente */
+.list li label[style*="line-through"] {
+  color: #9ca3af;
+}
+
+input[type="text"] {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  font-size: 1rem;
+  border: 1px solid #d1d5db; /* cinza claro */
+  border-radius: 0.375rem;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  margin-bottom: 0.5rem;
+}
+
+input[type="text"]:focus {
+  border-color: #2563eb; /* azul */
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.3); /* azul claro ao focar */
+}
