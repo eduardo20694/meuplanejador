@@ -392,35 +392,17 @@ ul.list li span:first-child {
   }
 }
 
-/* Estilo geral para o input de hora */
-input[type="time"] {
-  padding: 0.5rem 0.75rem;
-  font-size: 1rem;
-  border: 1px solid #d1d5db; /* cinza claro */
-  border-radius: 0.375rem;
-  outline: none;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
-  background-color: white;
-  color: #1f2937;
-  width: 120px; /* tamanho fixo para ficar legal */
-  margin-left: 8px; /* espaço entre inputs */
-}
-
-/* Foco no input de hora */
-input[type="time"]:focus {
-  border-color: #2563eb; /* azul */
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.3); /* azul claro ao focar */
-}
-
-.inputs-group {
+/* Container geral para inputs em coluna */
+.inputs-group-vertical {
   display: flex;
-  align-items: center;
-  gap: 8px;
+  flex-direction: column;
+  gap: 0.5rem;
   width: 100%;
+  max-width: 400px; /* pode ajustar */
 }
 
-.inputs-group input[type="text"],
-.inputs-group input[type="time"] {
+/* Input texto padrão */
+.inputs-group-vertical input[type="text"] {
   padding: 0.5rem 0.75rem;
   font-size: 1rem;
   border: 1px solid #d1d5db;
@@ -433,23 +415,64 @@ input[type="time"]:focus {
   background-color: white;
 }
 
-.inputs-group input[type="text"] {
-  flex: 1;
-}
-
-.inputs-group input[type="time"] {
-  width: 120px;
-}
-
-.inputs-group input[type="text"]:focus,
-.inputs-group input[type="time"]:focus {
+.inputs-group-vertical input[type="text"]:focus {
   border-color: #2563eb;
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.3);
 }
 
-.inputs-group button {
-  height: 38px;           /* Mesma altura dos inputs */
-  padding: 0 1rem;        /* Espaçamento interno horizontal */
+/* Botão ocupa toda largura na vertical */
+.inputs-group-vertical button {
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  border-radius: 0.375rem;
+  border: none;
+  background-color: #2563eb;
+  color: white;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.2s ease;
+  width: 100%;
+}
+
+.inputs-group-vertical button:hover {
+  background-color: #1d4ed8;
+}
+
+/* Container horizontal para agenda - alinhando hora e botão */
+.agenda-bottom-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 0.5rem;
+  max-width: 280px; /* para controlar largura total */
+}
+
+/* Input time com largura fixa */
+.agenda-bottom-row input[type="time"] {
+  width: 120px;
+  padding: 0.5rem 0.75rem;
+  font-size: 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  height: 38px;
+  box-sizing: border-box;
+  background-color: white;
+  color: #1f2937;
+}
+
+.agenda-bottom-row input[type="time"]:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.3);
+}
+
+/* Botão agenda alinhado com input time, largura mínima e sem expandir */
+.agenda-bottom-row button {
+  height: 38px;
+  padding: 0 0.3rem;   /* pouquíssimo padding horizontal */
+  min-width: auto;     /* sem largura mínima fixa */
+  width: auto;         /* largura só do conteúdo */
   border-radius: 0.375rem;
   border: none;
   cursor: pointer;
@@ -457,8 +480,17 @@ input[type="time"]:focus {
   color: white;
   font-weight: 600;
   transition: background-color 0.2s ease;
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
-.inputs-group button:hover {
+
+.agenda-bottom-row button:hover {
   background-color: #1d4ed8;
 }
+
+
+/* Remove a data (date-label) se não for usada, pode deletar */
+/* .agenda-bottom-row .date-label {
+  display: none;
+} */

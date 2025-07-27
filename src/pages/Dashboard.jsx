@@ -93,15 +93,17 @@ export default function App() {
 
   return (
     <div className="flex h-screen bg-gray-100 text-gray-800" style={{ flexDirection: "column" }}>
-      <header style={{
-        padding: "1rem 2rem",
-        borderBottom: "1px solid #ddd",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        gap: 10,
-        backgroundColor: "#f9fafb"
-      }}>
+      <header
+        style={{
+          padding: "1rem 2rem",
+          borderBottom: "1px solid #ddd",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          gap: 10,
+          backgroundColor: "#f9fafb",
+        }}
+      >
         <button onClick={goPrevDay} style={{ padding: "0.3rem 0.8rem" }}>{"<"}</button>
         <strong style={{ fontSize: 18 }}>{formatDateBR(selectedDate)}</strong>
         <button onClick={goNextDay} style={{ padding: "0.3rem 0.8rem" }}>{">"}</button>
@@ -110,22 +112,24 @@ export default function App() {
       <main className="content" style={{ flex: 1, overflowY: "auto", padding: "2rem" }}>
         <h2 className="main-title">Painel Principal</h2>
 
-        <div className="grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "2rem" }}>
+        <div
+          className="grid"
+          style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "2rem" }}
+        >
           {/* Tarefas */}
           <section className="card">
             <h3>Tarefas para {formatDateBR(selectedDate)}</h3>
-            {/* Aqui usamos inputs-group */}
-            <div className="inputs-group mb-4">
+
+            <div className="inputs-group-vertical">
               <input
                 type="text"
                 placeholder="Nova tarefa"
                 value={newTask}
                 onChange={e => setNewTask(e.target.value)}
               />
-              <button onClick={addTask} className="label-button">
-                Adicionar
-              </button>
+              <button onClick={addTask}>Adicionar</button>
             </div>
+
             <ul className="list">
               {tasksToday.length === 0 && <li className="empty">Nenhuma tarefa adicionada</li>}
               {tasksToday.map(({ id, text, done }) => (
@@ -164,47 +168,53 @@ export default function App() {
           </section>
 
           {/* Compromissos */}
-          <section className="card">
-            <h3>Compromissos para {formatDateBR(selectedDate)}</h3>
-            <div className="inputs-group mb-4">
-              <input
-                type="text"
-                placeholder="Novo compromisso"
-                value={newAppointment}
-                onChange={e => setNewAppointment(e.target.value)}
-              />
-              <input
-                type="time"
-                value={newAppointmentTime}
-                onChange={e => setNewAppointmentTime(e.target.value)}
-              />
-              <button onClick={addAppointment} className="label-button bg-green-600">
-                Adicionar
-              </button>
-            </div>
-            <ul className="list">
-              {appointmentsToday.length === 0 && <li className="empty">Nenhum compromisso adicionado</li>}
-              {appointmentsToday.map(({ id, text, time }) => (
-                <li key={id} className="flex items-center justify-between" style={{ gap: "0.5rem" }}>
-                  <span style={{ width: 60, fontWeight: "bold" }}>{time}</span>
-                  <span>{text}</span>
-                  <button
-                    onClick={() => removeAppointment(id)}
-                    style={{
-                      background: "transparent",
-                      border: "none",
-                      color: "#ef4444",
-                      cursor: "pointer",
-                      fontWeight: "bold",
-                    }}
-                    title="Excluir compromisso"
-                  >
-                    ×
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </section>
+          {/* Compromissos */}
+<section className="card">
+  <h3>Compromissos para {formatDateBR(selectedDate)}</h3>
+
+  <div className="inputs-group-vertical">
+    <input
+      type="text"
+      placeholder="Novo compromisso"
+      value={newAppointment}
+      onChange={e => setNewAppointment(e.target.value)}
+    />
+    <div className="agenda-bottom-row">
+      <input
+        type="time"
+        value={newAppointmentTime}
+        onChange={e => setNewAppointmentTime(e.target.value)}
+      />
+      <button onClick={addAppointment} className="small-button">Adicionar</button>
+    </div>
+  </div>
+
+  <ul className="list">
+    {appointmentsToday.length === 0 && (
+      <li className="empty">Nenhum compromisso adicionado</li>
+    )}
+    {appointmentsToday.map(({ id, text, time }) => (
+      <li key={id} className="flex items-center justify-between" style={{ gap: "0.5rem" }}>
+        <span style={{ width: 60, fontWeight: "bold" }}>{time}</span>
+        <span>{text}</span>
+        <button
+          onClick={() => removeAppointment(id)}
+          style={{
+            background: "transparent",
+            border: "none",
+            color: "#ef4444",
+            cursor: "pointer",
+            fontWeight: "bold",
+          }}
+          title="Excluir compromisso"
+        >
+          ×
+        </button>
+      </li>
+    ))}
+  </ul>
+</section>
+
 
           {/* Upload de PDFs */}
           <section className="card" style={{ display: "flex", flexDirection: "column" }}>
@@ -249,3 +259,4 @@ export default function App() {
     </div>
   );
 }
+
