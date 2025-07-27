@@ -109,16 +109,17 @@ h2.main-title {
   color: #111827;
 }
 
-/* Grid responsivo */
 .grid {
   display: grid;
   grid-template-columns: 1fr;
   gap: 2rem;
+  align-items: start; /* adiciona para evitar esticar */
 }
 
 @media (min-width: 768px) {
   .grid {
     grid-template-columns: repeat(3, 1fr);
+    align-items: start; /* adiciona para evitar esticar */
   }
 }
 
@@ -153,8 +154,7 @@ h2.main-title {
 ul.list {
   list-style-type: disc;
   padding-left: 1.5rem;
-  max-height: 15rem;
-  overflow-y: auto;
+  overflow-y: visible;
   color: #374151;
 }
 

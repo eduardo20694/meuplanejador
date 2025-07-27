@@ -169,51 +169,51 @@ export default function App() {
 
           {/* Compromissos */}
           {/* Compromissos */}
-<section className="card">
-  <h3>Compromissos para {formatDateBR(selectedDate)}</h3>
+          <section className="card">
+            <h3>Compromissos para {formatDateBR(selectedDate)}</h3>
 
-  <div className="inputs-group-vertical">
-    <input
-      type="text"
-      placeholder="Novo compromisso"
-      value={newAppointment}
-      onChange={e => setNewAppointment(e.target.value)}
-    />
-    <div className="agenda-bottom-row">
-      <input
-        type="time"
-        value={newAppointmentTime}
-        onChange={e => setNewAppointmentTime(e.target.value)}
-      />
-      <button onClick={addAppointment} className="small-button">Adicionar</button>
-    </div>
-  </div>
+            <div className="inputs-group-vertical">
+              <input
+                type="text"
+                placeholder="Novo compromisso"
+                value={newAppointment}
+                onChange={e => setNewAppointment(e.target.value)}
+              />
+              <div className="agenda-bottom-row">
+                <input
+                  type="time"
+                  value={newAppointmentTime}
+                  onChange={e => setNewAppointmentTime(e.target.value)}
+                />
+                <button onClick={addAppointment} className="small-button">Adicionar</button>
+              </div>
+            </div>
 
-  <ul className="list">
-    {appointmentsToday.length === 0 && (
-      <li className="empty">Nenhum compromisso adicionado</li>
-    )}
-    {appointmentsToday.map(({ id, text, time }) => (
-      <li key={id} className="flex items-center justify-between" style={{ gap: "0.5rem" }}>
-        <span style={{ width: 60, fontWeight: "bold" }}>{time}</span>
-        <span>{text}</span>
-        <button
-          onClick={() => removeAppointment(id)}
-          style={{
-            background: "transparent",
-            border: "none",
-            color: "#ef4444",
-            cursor: "pointer",
-            fontWeight: "bold",
-          }}
-          title="Excluir compromisso"
-        >
-          ×
-        </button>
-      </li>
-    ))}
-  </ul>
-</section>
+            <ul className="list">
+              {appointmentsToday.length === 0 && (
+                <li className="empty">Nenhum compromisso adicionado</li>
+              )}
+              {appointmentsToday.map(({ id, text, time }) => (
+                <li key={id} className="flex items-center justify-between" style={{ gap: "0.5rem" }}>
+                  <span style={{ width: 60, fontWeight: "bold" }}>{time}</span>
+                  <span>{text}</span>
+                  <button
+                    onClick={() => removeAppointment(id)}
+                    style={{
+                      background: "transparent",
+                      border: "none",
+                      color: "#ef4444",
+                      cursor: "pointer",
+                      fontWeight: "bold",
+                    }}
+                    title="Excluir compromisso"
+                  >
+                    ×
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </section>
 
 
           {/* Upload de PDFs */}
