@@ -1,5 +1,3 @@
-/* global.css */
-
 /* Reset básico para margens e paddings */
 *,
 *::before,
@@ -489,8 +487,3 @@ ul.list li span:first-child {
   background-color: #1d4ed8;
 }
 
-
-/* Remove a data (date-label) se não for usada, pode deletar */
-/* .agenda-bottom-row .date-label {
-  display: none;
-} */
