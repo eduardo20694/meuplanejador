@@ -1,6 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { HashRouter, Routes, Route, Navigate } from "react-router-dom";
 
 import AppWithSidebar from "./App.jsx"; // layout com sidebar
 import Login from "./pages/login.jsx";
@@ -14,7 +14,7 @@ function PrivateRoute({ children }) {
 }
 
 ReactDOM.createRoot(document.getElementById("root")).render(
-  <BrowserRouter>
+  <HashRouter>
     <Routes>
       {/* Rotas públicas sem sidebar */}
       <Route path="/login" element={<Login />} />
@@ -36,5 +36,5 @@ ReactDOM.createRoot(document.getElementById("root")).render(
       {/* Redireciona raiz para login */}
       <Route path="/" element={<Navigate to="/login" replace />} />
     </Routes>
-  </BrowserRouter>
+  </HashRouter>
 );
