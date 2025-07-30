@@ -8,7 +8,7 @@ function formatDateBR(date) {
   return date.toLocaleDateString("pt-BR");
 }
 
-export default function App() {
+export default function Dashboard() {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [tasks, setTasks] = useState([]);
   const [appointments, setAppointments] = useState([]);
@@ -59,7 +59,6 @@ export default function App() {
           resFiles.json(),
         ]);
 
-        // Datas já vêm do backend para o dia correto, não precisa converter
         setTasks(dataTasks);
         setAppointments(dataAppts);
         setFiles(dataFiles);

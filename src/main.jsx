@@ -1,12 +1,12 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import App from "./App.jsx";
-import Dashboard from "./pages/Dashboard.jsx";
-import Settings from "./pages/Settings.jsx";
+
+import AppWithSidebar from "./App.jsx"; // layout com sidebar
 import Login from "./pages/login.jsx";
 import Register from "./pages/register.jsx";
-import "./styles/global.css";
+import Dashboard from "./pages/Dashboard.jsx";
+import Settings from "./pages/Settings.jsx";
 
 function PrivateRoute({ children }) {
   const token = localStorage.getItem("token");
@@ -15,33 +15,26 @@ function PrivateRoute({ children }) {
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <BrowserRouter>
-    <App>
-      <Routes>
-        {/* Rota raiz redireciona para /login */}
-        <Route path="/" element={<Navigate to="/login" replace />} />
+    <Routes>
+      {/* Rotas públicas sem sidebar */}
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
 
-        {/* Rotas públicas */}
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+      {/* Rotas privadas com sidebar */}
+      <Route
+        element={
+          <PrivateRoute>
+            <AppWithSidebar />
+          </PrivateRoute>
+        }
+      >
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/settings" element={<Settings />} />
+        {/* Pode adicionar outras rotas privadas aqui */}
+      </Route>
 
-        {/* Rotas privadas */}
-        <Route
-          path="/dashboard"
-          element={
-            <PrivateRoute>
-              <Dashboard />
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/settings"
-          element={
-            <PrivateRoute>
-              <Settings />
-            </PrivateRoute>
-          }
-        />
-      </Routes>
-    </App>
+      {/* Redireciona raiz para login */}
+      <Route path="/" element={<Navigate to="/login" replace />} />
+    </Routes>
   </BrowserRouter>
 );
