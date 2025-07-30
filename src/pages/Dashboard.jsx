@@ -1,16 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "../styles/global.css";
 
-function formatDateBR(date) {
-  return date.toLocaleDateString("pt-BR");
-}
+const API_BASE = "https://apirest-production-b815.up.railway.app/api";
 
-function isSameDay(d1, d2) {
-  return (
-    d1.getDate() === d2.getDate() &&
-    d1.getMonth() === d2.getMonth() &&
-    d1.getFullYear() === d2.getFullYear()
-  );
+function formatDateBR(date) {
+  if (!(date instanceof Date) || isNaN(date)) return "";
+  return date.toLocaleDateString("pt-BR");
 }
 
 export default function App() {
@@ -23,19 +18,61 @@ export default function App() {
   const [newAppointment, setNewAppointment] = useState("");
   const [newAppointmentTime, setNewAppointmentTime] = useState("12:00");
 
-  // Estado para notificação
   const [notification, setNotification] = useState(null);
-  // notification: { type: "success" | "error", message: string }
+
+  const token = localStorage.getItem("token");
 
   function showNotification(type, message) {
     setNotification({ type, message });
-    setTimeout(() => {
-      setNotification(null);
-    }, 5000);
+    setTimeout(() => setNotification(null), 5000);
   }
 
+  function authHeaders(contentType = "application/json") {
+    return {
+      "Content-Type": contentType,
+      Authorization: `Bearer ${token}`,
+    };
+  }
+
+  useEffect(() => {
+    if (!token) {
+      showNotification("error", "Usuário não autenticado");
+      return;
+    }
+
+    async function fetchData() {
+      const dateStr = selectedDate.toISOString().split("T")[0];
+      try {
+        const [resTasks, resAppts, resFiles] = await Promise.all([
+          fetch(`${API_BASE}/tasks?date=${dateStr}`, { headers: authHeaders() }),
+          fetch(`${API_BASE}/appointments?date=${dateStr}`, { headers: authHeaders() }),
+          fetch(`${API_BASE}/pdfs`, { headers: authHeaders() }),
+        ]);
+
+        if (!resTasks.ok) throw new Error("Erro ao buscar tarefas");
+        if (!resAppts.ok) throw new Error("Erro ao buscar compromissos");
+        if (!resFiles.ok) throw new Error("Erro ao buscar arquivos PDF");
+
+        const [dataTasks, dataAppts, dataFiles] = await Promise.all([
+          resTasks.json(),
+          resAppts.json(),
+          resFiles.json(),
+        ]);
+
+        // Datas já vêm do backend para o dia correto, não precisa converter
+        setTasks(dataTasks);
+        setAppointments(dataAppts);
+        setFiles(dataFiles);
+      } catch (err) {
+        showNotification("error", err.message);
+      }
+    }
+
+    fetchData();
+  }, [token, selectedDate]);
+
   function goPrevDay() {
-    setSelectedDate((d) => {
+    setSelectedDate(d => {
       const newDate = new Date(d);
       newDate.setDate(d.getDate() - 1);
       return newDate;
@@ -43,85 +80,179 @@ export default function App() {
   }
 
   function goNextDay() {
-    setSelectedDate((d) => {
+    setSelectedDate(d => {
       const newDate = new Date(d);
       newDate.setDate(d.getDate() + 1);
       return newDate;
     });
   }
 
-  function addTask() {
+  // --- TAREFAS ---
+
+  async function addTask() {
     if (!newTask.trim()) return;
-    setTasks((prev) => [
-      ...prev,
-      { id: Date.now(), text: newTask.trim(), done: false, date: new Date(selectedDate) },
-    ]);
-    setNewTask("");
-    showNotification("success", "Tarefa adicionada com sucesso!");
+
+    try {
+      const res = await fetch(`${API_BASE}/tasks`, {
+        method: "POST",
+        headers: authHeaders(),
+        body: JSON.stringify({
+          titulo: newTask.trim(),
+          date: selectedDate.toISOString().split("T")[0],
+        }),
+      });
+
+      if (!res.ok) {
+        const errData = await res.json();
+        throw new Error(errData.error || "Erro ao adicionar tarefa");
+      }
+
+      const createdTask = await res.json();
+
+      setTasks(prev => [...prev, createdTask]);
+      setNewTask("");
+      showNotification("success", "Tarefa adicionada com sucesso!");
+    } catch (err) {
+      showNotification("error", err.message);
+    }
   }
 
-  function addAppointment() {
-    if (!newAppointment.trim()) return;
-    setAppointments((prev) => [
-      ...prev,
-      {
-        id: Date.now(),
-        text: newAppointment.trim(),
-        date: new Date(selectedDate),
-        time: newAppointmentTime,
-      },
-    ]);
-    setNewAppointment("");
-    setNewAppointmentTime("12:00");
-    showNotification("success", "Compromisso adicionado com sucesso!");
+  async function toggleTaskDone(id) {
+    try {
+      const task = tasks.find(t => t.id === id);
+      if (!task) throw new Error("Tarefa não encontrada");
+
+      const res = await fetch(`${API_BASE}/tasks/${id}`, {
+        method: "PUT",
+        headers: authHeaders(),
+        body: JSON.stringify({ done: !task.done }),
+      });
+
+      if (!res.ok) throw new Error("Erro ao atualizar tarefa");
+      const updatedTask = await res.json();
+
+      setTasks(prev => prev.map(t => (t.id === id ? updatedTask : t)));
+    } catch (err) {
+      showNotification("error", err.message);
+    }
   }
 
-  function toggleTaskDone(id) {
-    setTasks((prev) =>
-      prev.map((task) =>
-        task.id === id ? { ...task, done: !task.done } : task
-      )
-    );
+  async function removeTask(id) {
+    try {
+      const res = await fetch(`${API_BASE}/tasks/${id}`, {
+        method: "DELETE",
+        headers: authHeaders(),
+      });
+
+      if (!res.ok) throw new Error("Erro ao remover tarefa");
+      setTasks(prev => prev.filter(t => t.id !== id));
+      showNotification("success", "Tarefa removida!");
+    } catch (err) {
+      showNotification("error", err.message);
+    }
   }
 
-  function removeTask(id) {
-    setTasks((prev) => prev.filter((task) => task.id !== id));
-    showNotification("error", "Tarefa removida!");
+  // --- COMPROMISSOS ---
+
+  async function addAppointment() {
+    if (!newAppointment.trim() || !newAppointmentTime) return;
+
+    try {
+      const res = await fetch(`${API_BASE}/appointments`, {
+        method: "POST",
+        headers: authHeaders(),
+        body: JSON.stringify({
+          titulo: newAppointment.trim(),
+          hora: newAppointmentTime,
+          date: selectedDate.toISOString().split("T")[0],
+        }),
+      });
+
+      if (!res.ok) {
+        const errData = await res.json();
+        throw new Error(errData.error || "Erro ao adicionar compromisso");
+      }
+
+      const createdAppt = await res.json();
+      setAppointments(prev => [...prev, createdAppt]);
+      setNewAppointment("");
+      setNewAppointmentTime("12:00");
+      showNotification("success", "Compromisso adicionado com sucesso!");
+    } catch (err) {
+      showNotification("error", err.message);
+    }
   }
 
-  function removeAppointment(id) {
-    setAppointments((prev) => prev.filter((appt) => appt.id !== id));
-    showNotification("error", "Compromisso removido!");
+  async function removeAppointment(id) {
+    try {
+      const res = await fetch(`${API_BASE}/appointments/${id}`, {
+        method: "DELETE",
+        headers: authHeaders(),
+      });
+
+      if (!res.ok) throw new Error("Erro ao remover compromisso");
+      setAppointments(prev => prev.filter(a => a.id !== id));
+      showNotification("success", "Compromisso removido!");
+    } catch (err) {
+      showNotification("error", err.message);
+    }
   }
 
-  function handleFileChange(e) {
+  // --- PDFs ---
+
+  async function handleFileChange(e) {
     const selectedFiles = Array.from(e.target.files);
-    const newFiles = selectedFiles.filter(
-      (file) =>
-        file.type === "application/pdf" &&
-        !files.some((f) => f.name === file.name)
-    );
-    if (newFiles.length === 0) return;
-    setFiles((prev) => [...prev, ...newFiles]);
-    showNotification("success", "Arquivo(s) PDF adicionado(s) com sucesso!");
+    if (selectedFiles.length === 0) return;
+
+    try {
+      const formData = new FormData();
+      selectedFiles.forEach(file => {
+        if (file.type === "application/pdf") {
+          formData.append("pdfs", file);
+        }
+      });
+
+      if (formData.getAll("pdfs").length === 0) return;
+
+      const res = await fetch(`${API_BASE}/pdfs`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
+      });
+
+      if (!res.ok) {
+        const errData = await res.json();
+        throw new Error(errData.error || "Erro ao enviar arquivos");
+      }
+
+      const uploadedFiles = await res.json();
+      setFiles(prev => [...prev, ...uploadedFiles]);
+      showNotification("success", "Arquivo(s) PDF adicionado(s) com sucesso!");
+    } catch (err) {
+      showNotification("error", err.message);
+    }
   }
 
-  function removeFile(name) {
-    setFiles((prev) => prev.filter((file) => file.name !== name));
-    showNotification("error", "Arquivo PDF removido!");
-  }
+  async function removeFile(id) {
+    try {
+      const res = await fetch(`${API_BASE}/pdfs/${id}`, {
+        method: "DELETE",
+        headers: authHeaders(),
+      });
 
-  const tasksToday = tasks.filter((task) => isSameDay(task.date, selectedDate));
-  const appointmentsToday = appointments.filter((appt) =>
-    isSameDay(appt.date, selectedDate)
-  );
+      if (!res.ok) throw new Error("Erro ao remover arquivo");
+      setFiles(prev => prev.filter(f => f.id !== id));
+      showNotification("success", "Arquivo PDF removido!");
+    } catch (err) {
+      showNotification("error", err.message);
+    }
+  }
 
   return (
     <div
       className="flex h-screen bg-gray-100 text-gray-800"
       style={{ flexDirection: "column" }}
     >
-      {/* Notificação fixa no topo */}
       {notification && (
         <div
           style={{
@@ -129,8 +260,7 @@ export default function App() {
             top: 0,
             left: "50%",
             transform: "translateX(-50%)",
-            backgroundColor:
-              notification.type === "success" ? "#16a34a" : "#dc2626", // verde ou vermelho
+            backgroundColor: notification.type === "success" ? "#16a34a" : "#dc2626",
             color: "white",
             padding: "1rem 2rem",
             borderRadius: "0 0 0.5rem 0.5rem",
@@ -156,7 +286,7 @@ export default function App() {
           alignItems: "center",
           gap: 10,
           backgroundColor: "#f9fafb",
-          marginTop: notification ? 48 : 0, // dar espaço pra notificação
+          marginTop: notification ? 48 : 0,
           transition: "margin-top 0.3s ease",
         }}
       >
@@ -188,16 +318,14 @@ export default function App() {
                 type="text"
                 placeholder="Nova tarefa"
                 value={newTask}
-                onChange={(e) => setNewTask(e.target.value)}
+                onChange={e => setNewTask(e.target.value)}
               />
               <button onClick={addTask}>Adicionar</button>
             </div>
 
             <ul className="list">
-              {tasksToday.length === 0 && (
-                <li className="empty">Nenhuma tarefa adicionada</li>
-              )}
-              {tasksToday.map(({ id, text, done }) => (
+              {tasks.length === 0 && <li className="empty">Nenhuma tarefa adicionada</li>}
+              {tasks.map(({ id, titulo, done }) => (
                 <li key={id} className="flex items-center justify-between">
                   <label
                     style={{
@@ -212,7 +340,7 @@ export default function App() {
                       onChange={() => toggleTaskDone(id)}
                       style={{ marginRight: 8 }}
                     />
-                    {text}
+                    {titulo}
                   </label>
                   <button
                     onClick={() => removeTask(id)}
@@ -241,13 +369,13 @@ export default function App() {
                 type="text"
                 placeholder="Novo compromisso"
                 value={newAppointment}
-                onChange={(e) => setNewAppointment(e.target.value)}
+                onChange={e => setNewAppointment(e.target.value)}
               />
               <div className="agenda-bottom-row">
                 <input
                   type="time"
                   value={newAppointmentTime}
-                  onChange={(e) => setNewAppointmentTime(e.target.value)}
+                  onChange={e => setNewAppointmentTime(e.target.value)}
                 />
                 <button onClick={addAppointment} className="small-button">
                   Adicionar
@@ -256,17 +384,15 @@ export default function App() {
             </div>
 
             <ul className="list">
-              {appointmentsToday.length === 0 && (
-                <li className="empty">Nenhum compromisso adicionado</li>
-              )}
-              {appointmentsToday.map(({ id, text, time }) => (
+              {appointments.length === 0 && <li className="empty">Nenhum compromisso adicionado</li>}
+              {appointments.map(({ id, titulo, hora }) => (
                 <li
                   key={id}
                   className="flex items-center justify-between"
                   style={{ gap: "0.5rem" }}
                 >
-                  <span style={{ width: 60, fontWeight: "bold" }}>{time}</span>
-                  <span>{text}</span>
+                  <span style={{ width: 60, fontWeight: "bold" }}>{hora}</span>
+                  <span>{titulo}</span>
                   <button
                     onClick={() => removeAppointment(id)}
                     style={{
@@ -302,44 +428,38 @@ export default function App() {
 
             <ul className="file-list">
               {files.length === 0 && <li className="empty">Nenhum arquivo anexado</li>}
-              {files.map((file) => {
-                const url = URL.createObjectURL(file);
-                return (
-                  <li
-                    key={file.name}
-                    className="flex items-center justify-between"
-                    style={{ gap: "0.5rem" }}
-                  >
-                    <span>
-                      📄{" "}
-                      <a
-                        href={url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        style={{ color: "#2563eb", textDecoration: "underline" }}
-                        onClick={() => {
-                          setTimeout(() => URL.revokeObjectURL(url), 1000 * 60);
-                        }}
-                      >
-                        {file.name}
-                      </a>
-                    </span>
-                    <button
-                      onClick={() => removeFile(file.name)}
-                      style={{
-                        background: "transparent",
-                        border: "none",
-                        color: "#ef4444",
-                        cursor: "pointer",
-                        fontWeight: "bold",
-                      }}
-                      title="Remover arquivo"
+              {files.map(({ id, name, url }) => (
+                <li
+                  key={id}
+                  className="flex items-center justify-between"
+                  style={{ gap: "0.5rem" }}
+                >
+                  <span>
+                    📄{" "}
+                    <a
+                      href={url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ color: "#2563eb", textDecoration: "underline" }}
                     >
-                      ×
-                    </button>
-                  </li>
-                );
-              })}
+                      {name}
+                    </a>
+                  </span>
+                  <button
+                    onClick={() => removeFile(id)}
+                    style={{
+                      background: "transparent",
+                      border: "none",
+                      color: "#ef4444",
+                      cursor: "pointer",
+                      fontWeight: "bold",
+                    }}
+                    title="Remover arquivo"
+                  >
+                    ×
+                  </button>
+                </li>
+              ))}
             </ul>
           </section>
         </div>
