@@ -29,7 +29,7 @@ export default function Dashboard() {
 
   function authHeaders(contentType = "application/json") {
     return {
-      "Content-Type": contentType,
+      ...(contentType && { "Content-Type": contentType }),
       Authorization: `Bearer ${token}`,
     };
   }
@@ -51,7 +51,7 @@ export default function Dashboard() {
 
         if (!resTasks.ok) throw new Error("Erro ao buscar tarefas");
         if (!resAppts.ok) throw new Error("Erro ao buscar compromissos");
-        if (!resFiles.ok) throw new Error("Erro ao buscar arquivos PDF");
+        if (!resFiles.ok) throw new Error("Erro ao buscar arquivos");
 
         const [dataTasks, dataAppts, dataFiles] = await Promise.all([
           resTasks.json(),
@@ -87,7 +87,6 @@ export default function Dashboard() {
   }
 
   // --- TAREFAS ---
-
   async function addTask() {
     if (!newTask.trim()) return;
 
@@ -152,7 +151,6 @@ export default function Dashboard() {
   }
 
   // --- COMPROMISSOS ---
-
   async function addAppointment() {
     if (!newAppointment.trim() || !newAppointmentTime) return;
 
@@ -197,25 +195,38 @@ export default function Dashboard() {
     }
   }
 
-  // --- PDFs ---
-
+  // --- UPLOAD DE ARQUIVOS (PDF, DOC, XLS etc) ---
   async function handleFileChange(e) {
     const selectedFiles = Array.from(e.target.files);
     if (selectedFiles.length === 0) return;
 
     try {
       const formData = new FormData();
+      // Aceitar vários tipos de arquivo
       selectedFiles.forEach(file => {
-        if (file.type === "application/pdf") {
-          formData.append("pdfs", file);
+        const allowedTypes = [
+          "application/pdf",
+          "application/msword",
+          "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+          "application/vnd.ms-excel",
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+          "text/plain",
+        ];
+        if (allowedTypes.includes(file.type)) {
+          formData.append("pdfs", file); // 'pdfs' é o nome do campo esperado no backend
         }
       });
 
-      if (formData.getAll("pdfs").length === 0) return;
+      if (formData.getAll("pdfs").length === 0) {
+        showNotification("error", "Selecione arquivos válidos (.pdf, .doc, .docx, .xls, .txt)");
+        return;
+      }
 
       const res = await fetch(`${API_BASE}/pdfs`, {
         method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
+        headers: {
+          Authorization: `Bearer ${token}`, // NÃO passar Content-Type!
+        },
         body: formData,
       });
 
@@ -226,7 +237,7 @@ export default function Dashboard() {
 
       const uploadedFiles = await res.json();
       setFiles(prev => [...prev, ...uploadedFiles]);
-      showNotification("success", "Arquivo(s) PDF adicionado(s) com sucesso!");
+      showNotification("success", "Arquivo(s) enviado(s) com sucesso!");
     } catch (err) {
       showNotification("error", err.message);
     }
@@ -241,17 +252,14 @@ export default function Dashboard() {
 
       if (!res.ok) throw new Error("Erro ao remover arquivo");
       setFiles(prev => prev.filter(f => f.id !== id));
-      showNotification("success", "Arquivo PDF removido!");
+      showNotification("success", "Arquivo removido!");
     } catch (err) {
       showNotification("error", err.message);
     }
   }
 
   return (
-    <div
-      className="flex h-screen bg-gray-100 text-gray-800"
-      style={{ flexDirection: "column" }}
-    >
+    <div className="flex h-screen bg-gray-100 text-gray-800" style={{ flexDirection: "column" }}>
       {notification && (
         <div
           style={{
@@ -298,10 +306,7 @@ export default function Dashboard() {
         </button>
       </header>
 
-      <main
-        className="content"
-        style={{ flex: 1, overflowY: "auto", padding: "2rem" }}
-      >
+      <main className="content" style={{ flex: 1, overflowY: "auto", padding: "2rem" }}>
         <h2 className="main-title">Painel Principal</h2>
 
         <div
@@ -385,11 +390,7 @@ export default function Dashboard() {
             <ul className="list">
               {appointments.length === 0 && <li className="empty">Nenhum compromisso adicionado</li>}
               {appointments.map(({ id, titulo, hora }) => (
-                <li
-                  key={id}
-                  className="flex items-center justify-between"
-                  style={{ gap: "0.5rem" }}
-                >
+                <li key={id} className="flex items-center justify-between" style={{ gap: "0.5rem" }}>
                   <span style={{ width: 60, fontWeight: "bold" }}>{hora}</span>
                   <span>{titulo}</span>
                   <button
@@ -410,56 +411,53 @@ export default function Dashboard() {
             </ul>
           </section>
 
-          {/* Upload de PDFs */}
+          {/* Upload de arquivos */}
           <section className="card" style={{ display: "flex", flexDirection: "column" }}>
-            <h3>Anexar Documentos (PDF)</h3>
+            <h3>Anexar Documentos (PDF, DOC, XLS etc.)</h3>
 
             <label className="label-button" style={{ maxWidth: "fit-content" }}>
-              Selecionar PDFs
+              Selecionar arquivos
               <input
                 type="file"
-                accept="application/pdf"
+                accept=".pdf,.doc,.docx,.xls,.xlsx,.txt"
                 multiple
+                name="pdfs"  // ⚠️ nome deve bater com backend e com o formData.append
                 className="hidden-input"
                 onChange={handleFileChange}
               />
-            </label>
+              </label>
 
-            <ul className="file-list">
-              {files.length === 0 && <li className="empty">Nenhum arquivo anexado</li>}
-              {files.map(({ id, name, url }) => (
-                <li
-                  key={id}
-                  className="flex items-center justify-between"
-                  style={{ gap: "0.5rem" }}
-                >
-                  <span>
-                    📄{" "}
-                    <a
-                      href={url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{ color: "#2563eb", textDecoration: "underline" }}
+              <ul className="file-list">
+                {files.length === 0 && <li className="empty">Nenhum arquivo anexado</li>}
+                {files.map(({ id, titulo, url }) => (
+                  <li key={id} className="flex items-center justify-between" style={{ gap: "0.5rem" }}>
+                    <span>
+                      📄{" "}
+                      <a
+                        href={`${API_BASE}${url}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{ color: "#2563eb", textDecoration: "underline" }}
+                      >
+                        {titulo}
+                      </a>
+                    </span>
+                    <button
+                      onClick={() => removeFile(id)}
+                      style={{
+                        background: "transparent",
+                        border: "none",
+                        color: "#ef4444",
+                        cursor: "pointer",
+                        fontWeight: "bold",
+                      }}
+                      title="Remover arquivo"
                     >
-                      {name}
-                    </a>
-                  </span>
-                  <button
-                    onClick={() => removeFile(id)}
-                    style={{
-                      background: "transparent",
-                      border: "none",
-                      color: "#ef4444",
-                      cursor: "pointer",
-                      fontWeight: "bold",
-                    }}
-                    title="Remover arquivo"
-                  >
-                    ×
-                  </button>
-                </li>
-              ))}
-            </ul>
+                      ×
+                    </button>
+                  </li>
+                ))}
+              </ul>
           </section>
         </div>
       </main>
