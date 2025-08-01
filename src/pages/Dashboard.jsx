@@ -19,8 +19,22 @@ export default function Dashboard() {
   const [newAppointmentTime, setNewAppointmentTime] = useState("12:00");
 
   const [notification, setNotification] = useState(null);
+  const [darkMode, setDarkMode] = useState(
+    document.body.classList.contains("dark-mode")
+  );
 
   const token = localStorage.getItem("token");
+
+  // Observa mudanças na classe dark-mode para atualizar darkMode no React
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      setDarkMode(document.body.classList.contains("dark-mode"));
+    });
+
+    observer.observe(document.body, { attributes: true, attributeFilter: ["class"] });
+
+    return () => observer.disconnect();
+  }, []);
 
   function showNotification(type, message) {
     setNotification({ type, message });
@@ -71,7 +85,7 @@ export default function Dashboard() {
   }, [token, selectedDate]);
 
   function goPrevDay() {
-    setSelectedDate(d => {
+    setSelectedDate((d) => {
       const newDate = new Date(d);
       newDate.setDate(d.getDate() - 1);
       return newDate;
@@ -79,7 +93,7 @@ export default function Dashboard() {
   }
 
   function goNextDay() {
-    setSelectedDate(d => {
+    setSelectedDate((d) => {
       const newDate = new Date(d);
       newDate.setDate(d.getDate() + 1);
       return newDate;
@@ -107,7 +121,7 @@ export default function Dashboard() {
 
       const createdTask = await res.json();
 
-      setTasks(prev => [...prev, createdTask]);
+      setTasks((prev) => [...prev, createdTask]);
       setNewTask("");
       showNotification("success", "Tarefa adicionada com sucesso!");
     } catch (err) {
@@ -117,7 +131,7 @@ export default function Dashboard() {
 
   async function toggleTaskDone(id) {
     try {
-      const task = tasks.find(t => t.id === id);
+      const task = tasks.find((t) => t.id === id);
       if (!task) throw new Error("Tarefa não encontrada");
 
       const res = await fetch(`${API_BASE}/tasks/${id}`, {
@@ -129,7 +143,7 @@ export default function Dashboard() {
       if (!res.ok) throw new Error("Erro ao atualizar tarefa");
       const updatedTask = await res.json();
 
-      setTasks(prev => prev.map(t => (t.id === id ? updatedTask : t)));
+      setTasks((prev) => prev.map((t) => (t.id === id ? updatedTask : t)));
     } catch (err) {
       showNotification("error", err.message);
     }
@@ -143,7 +157,7 @@ export default function Dashboard() {
       });
 
       if (!res.ok) throw new Error("Erro ao remover tarefa");
-      setTasks(prev => prev.filter(t => t.id !== id));
+      setTasks((prev) => prev.filter((t) => t.id !== id));
       showNotification("success", "Tarefa removida!");
     } catch (err) {
       showNotification("error", err.message);
@@ -171,7 +185,7 @@ export default function Dashboard() {
       }
 
       const createdAppt = await res.json();
-      setAppointments(prev => [...prev, createdAppt]);
+      setAppointments((prev) => [...prev, createdAppt]);
       setNewAppointment("");
       setNewAppointmentTime("12:00");
       showNotification("success", "Compromisso adicionado com sucesso!");
@@ -188,37 +202,39 @@ export default function Dashboard() {
       });
 
       if (!res.ok) throw new Error("Erro ao remover compromisso");
-      setAppointments(prev => prev.filter(a => a.id !== id));
+      setAppointments((prev) => prev.filter((a) => a.id !== id));
       showNotification("success", "Compromisso removido!");
     } catch (err) {
       showNotification("error", err.message);
     }
   }
 
-  // --- UPLOAD DE ARQUIVOS (PDF, DOC, XLS etc) ---
+  // --- UPLOAD DE ARQUIVOS ---
   async function handleFileChange(e) {
     const selectedFiles = Array.from(e.target.files);
     if (selectedFiles.length === 0) return;
 
     try {
       const formData = new FormData();
-      // Aceitar vários tipos de arquivo
-      selectedFiles.forEach(file => {
-        const allowedTypes = [
-          "application/pdf",
-          "application/msword",
-          "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-          "application/vnd.ms-excel",
-          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-          "text/plain",
-        ];
+      const allowedTypes = [
+        "application/pdf",
+        "application/msword",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        "application/vnd.ms-excel",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        "text/plain",
+      ];
+      selectedFiles.forEach((file) => {
         if (allowedTypes.includes(file.type)) {
-          formData.append("pdfs", file); // 'pdfs' é o nome do campo esperado no backend
+          formData.append("pdfs", file);
         }
       });
 
       if (formData.getAll("pdfs").length === 0) {
-        showNotification("error", "Selecione arquivos válidos (.pdf, .doc, .docx, .xls, .txt)");
+        showNotification(
+          "error",
+          "Selecione arquivos válidos (.pdf, .doc, .docx, .xls, .txt)"
+        );
         return;
       }
 
@@ -236,7 +252,7 @@ export default function Dashboard() {
       }
 
       const uploadedFiles = await res.json();
-      setFiles(prev => [...prev, ...uploadedFiles]);
+      setFiles((prev) => [...prev, ...uploadedFiles]);
       showNotification("success", "Arquivo(s) enviado(s) com sucesso!");
     } catch (err) {
       showNotification("error", err.message);
@@ -251,7 +267,7 @@ export default function Dashboard() {
       });
 
       if (!res.ok) throw new Error("Erro ao remover arquivo");
-      setFiles(prev => prev.filter(f => f.id !== id));
+      setFiles((prev) => prev.filter((f) => f.id !== id));
       showNotification("success", "Arquivo removido!");
     } catch (err) {
       showNotification("error", err.message);
@@ -259,7 +275,12 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="flex h-screen bg-gray-100 text-gray-800" style={{ flexDirection: "column" }}>
+    <div
+      className={`flex h-screen ${
+        darkMode ? "bg-gray-900 text-gray-100" : "bg-gray-100 text-gray-800"
+      }`}
+      style={{ flexDirection: "column" }}
+    >
       {notification && (
         <div
           style={{
@@ -267,11 +288,20 @@ export default function Dashboard() {
             top: 0,
             left: "50%",
             transform: "translateX(-50%)",
-            backgroundColor: notification.type === "success" ? "#16a34a" : "#dc2626",
+            backgroundColor:
+              notification.type === "success"
+                ? darkMode
+                  ? "#15803d"
+                  : "#16a34a"
+                : darkMode
+                ? "#b91c1c"
+                : "#dc2626",
             color: "white",
             padding: "1rem 2rem",
             borderRadius: "0 0 0.5rem 0.5rem",
-            boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
+            boxShadow: darkMode
+              ? "0 2px 8px rgba(255,255,255,0.2)"
+              : "0 2px 8px rgba(0,0,0,0.2)",
             zIndex: 9999,
             fontWeight: "600",
             userSelect: "none",
@@ -287,14 +317,15 @@ export default function Dashboard() {
       <header
         style={{
           padding: "1rem 2rem",
-          borderBottom: "1px solid #ddd",
+          borderBottom: darkMode ? "1px solid #555" : "1px solid #ddd",
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
           gap: 10,
-          backgroundColor: "#f9fafb",
+          backgroundColor: darkMode ? "#02080eff" : "#f9fafb",
           marginTop: notification ? 48 : 0,
-          transition: "margin-top 0.3s ease",
+          transition:
+            "margin-top 0.3s ease, background-color 0.3s ease, border-color 0.3s ease",
         }}
       >
         <button onClick={goPrevDay} style={{ padding: "0.3rem 0.8rem" }}>
@@ -306,7 +337,10 @@ export default function Dashboard() {
         </button>
       </header>
 
-      <main className="content" style={{ flex: 1, overflowY: "auto", padding: "2rem" }}>
+      <main
+        className="content"
+        style={{ flex: 1, overflowY: "auto", padding: "2rem" }}
+      >
         <h2 className="main-title">Painel Principal</h2>
 
         <div
@@ -322,7 +356,7 @@ export default function Dashboard() {
                 type="text"
                 placeholder="Nova tarefa"
                 value={newTask}
-                onChange={e => setNewTask(e.target.value)}
+                onChange={(e) => setNewTask(e.target.value)}
               />
               <button onClick={addTask}>Adicionar</button>
             </div>
@@ -373,13 +407,13 @@ export default function Dashboard() {
                 type="text"
                 placeholder="Novo compromisso"
                 value={newAppointment}
-                onChange={e => setNewAppointment(e.target.value)}
+                onChange={(e) => setNewAppointment(e.target.value)}
               />
               <div className="agenda-bottom-row">
                 <input
                   type="time"
                   value={newAppointmentTime}
-                  onChange={e => setNewAppointmentTime(e.target.value)}
+                  onChange={(e) => setNewAppointmentTime(e.target.value)}
                 />
                 <button onClick={addAppointment} className="small-button">
                   Adicionar
@@ -388,9 +422,15 @@ export default function Dashboard() {
             </div>
 
             <ul className="list">
-              {appointments.length === 0 && <li className="empty">Nenhum compromisso adicionado</li>}
+              {appointments.length === 0 && (
+                <li className="empty">Nenhum compromisso adicionado</li>
+              )}
               {appointments.map(({ id, titulo, hora }) => (
-                <li key={id} className="flex items-center justify-between" style={{ gap: "0.5rem" }}>
+                <li
+                  key={id}
+                  className="flex items-center justify-between"
+                  style={{ gap: "0.5rem" }}
+                >
                   <span style={{ width: 60, fontWeight: "bold" }}>{hora}</span>
                   <span>{titulo}</span>
                   <button
@@ -412,7 +452,10 @@ export default function Dashboard() {
           </section>
 
           {/* Upload de arquivos */}
-          <section className="card" style={{ display: "flex", flexDirection: "column" }}>
+          <section
+            className="card"
+            style={{ display: "flex", flexDirection: "column" }}
+          >
             <h3>Anexar Documentos (PDF, DOC, XLS etc.)</h3>
 
             <label className="label-button" style={{ maxWidth: "fit-content" }}>
@@ -421,43 +464,47 @@ export default function Dashboard() {
                 type="file"
                 accept=".pdf,.doc,.docx,.xls,.xlsx,.txt"
                 multiple
-                name="pdfs"  // ⚠️ nome deve bater com backend e com o formData.append
+                name="pdfs" // ⚠️ nome deve bater com backend e com o formData.append
                 className="hidden-input"
                 onChange={handleFileChange}
               />
-              </label>
+            </label>
 
-              <ul className="file-list">
-                {files.length === 0 && <li className="empty">Nenhum arquivo anexado</li>}
-                {files.map(({ id, titulo, url }) => (
-                  <li key={id} className="flex items-center justify-between" style={{ gap: "0.5rem" }}>
-                    <span>
-                      📄{" "}
-                      <a
-                        href={`${API_BASE}${url}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        style={{ color: "#2563eb", textDecoration: "underline" }}
-                      >
-                        {titulo}
-                      </a>
-                    </span>
-                    <button
-                      onClick={() => removeFile(id)}
-                      style={{
-                        background: "transparent",
-                        border: "none",
-                        color: "#ef4444",
-                        cursor: "pointer",
-                        fontWeight: "bold",
-                      }}
-                      title="Remover arquivo"
+            <ul className="file-list">
+              {files.length === 0 && <li className="empty">Nenhum arquivo anexado</li>}
+              {files.map(({ id, titulo, url }) => (
+                <li
+                  key={id}
+                  className="flex items-center justify-between"
+                  style={{ gap: "0.5rem" }}
+                >
+                  <span>
+                    📄{" "}
+                    <a
+                      href={`${API_BASE}${url}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ color: "#2563eb", textDecoration: "underline" }}
                     >
-                      ×
-                    </button>
-                  </li>
-                ))}
-              </ul>
+                      {titulo}
+                    </a>
+                  </span>
+                  <button
+                    onClick={() => removeFile(id)}
+                    style={{
+                      background: "transparent",
+                      border: "none",
+                      color: "#ef4444",
+                      cursor: "pointer",
+                      fontWeight: "bold",
+                    }}
+                    title="Remover arquivo"
+                  >
+                    ×
+                  </button>
+                </li>
+              ))}
+            </ul>
           </section>
         </div>
       </main>
