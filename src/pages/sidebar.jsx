@@ -1,4 +1,3 @@
-// Sidebar.jsx
 import React from "react";
 
 export default function Sidebar({ onLogout }) {
@@ -34,7 +33,6 @@ export default function Sidebar({ onLogout }) {
               Compromissos
             </a>
           </li>
-          {/* Coloque outras rotas que desejar */}
         </ul>
       </nav>
 

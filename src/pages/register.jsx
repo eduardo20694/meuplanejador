@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "../styles/login.css"; // Pode usar o mesmo estilo do login
+import "../styles/login.css"; 
 
 export default function Register() {
   const navigate = useNavigate();

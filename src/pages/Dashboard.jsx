@@ -241,7 +241,7 @@ export default function Dashboard() {
       const res = await fetch(`${API_BASE}/pdfs`, {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${token}`, // NÃO passar Content-Type!
+          Authorization: `Bearer ${token}`,
         },
         body: formData,
       });
@@ -464,7 +464,7 @@ export default function Dashboard() {
                 type="file"
                 accept=".pdf,.doc,.docx,.xls,.xlsx,.txt"
                 multiple
-                name="pdfs" // ⚠️ nome deve bater com backend e com o formData.append
+                name="pdfs" 
                 className="hidden-input"
                 onChange={handleFileChange}
               />
