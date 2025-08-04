@@ -69,9 +69,12 @@
     border-bottom: 1px solid #e5e7eb;
     box-shadow: none;
     padding: 1rem;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
+
+    /* Alteração importante: flex em coluna para título em cima e opções abaixo */
+    flex-direction: column;
+    align-items: flex-start; /* alinha ao início */
+    justify-content: flex-start;
+    gap: 0.75rem; /* espaço entre título e nav */
   }
 
   .sidebar-title {
@@ -81,13 +84,18 @@
 
   .sidebar-nav {
     display: flex;
-    gap: 1rem;
+    flex-direction: column; /* empilha os links em coluna */
+    gap: 0.5rem; /* espaço entre os links */
+    width: 100%;
   }
 
   .sidebar-nav a {
     margin-bottom: 0;
-    padding: 0.25rem 0.5rem;
+    padding: 0.5rem 0;
     font-weight: 600;
+    width: 100%; /* ocupa largura total */
+    border-radius: 0.375rem;
+    text-align: left;
   }
 
   .content {
@@ -96,6 +104,7 @@
     overflow-y: auto;
   }
 }
+
 
 /* === Tema escuro === */
 body.dark-mode .flex {

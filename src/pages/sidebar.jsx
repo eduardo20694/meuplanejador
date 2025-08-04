@@ -5,9 +5,9 @@ export default function AppWithSidebar() {
   return (
     <div className="flex h-screen bg-gray-100 text-gray-800">
       <aside className="sidebar">
-        <h1 className="sidebar-title">Dashboard</h1>
+        <h1 className="sidebar-title">Bem vindo ao Planejador Pessoal</h1>
         <nav className="sidebar-nav">
-          <Link to="/dashboard">Dashboard</Link>
+          <Link to="/dashboard">Planejador</Link>
           <Link to="/settings">Configurações</Link>
         </nav>
       </aside>
