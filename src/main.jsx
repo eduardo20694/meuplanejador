@@ -2,7 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { HashRouter, Routes, Route, Navigate } from "react-router-dom";
 
-import AppWithSidebar from "./pages/Sidebar.jsx";
+import AppWithSidebar from "./pages/sidebar.jsx";
 import Login from "./pages/login.jsx";
 import Register from "./pages/register.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
