@@ -1,54 +1,20 @@
-import React from "react";
+import { Link, Outlet } from "react-router-dom";
+import "../styles/sidebar.css";
 
-export default function Sidebar({ onLogout }) {
+export default function AppWithSidebar() {
   return (
-    <aside
-      style={{
-        width: 240,
-        backgroundColor: "#1f2937",
-        color: "white",
-        display: "flex",
-        flexDirection: "column",
-        padding: "1rem",
-        height: "100vh",
-        boxSizing: "border-box",
-      }}
-    >
-      <h2 style={{ marginBottom: "2rem", fontSize: "1.5rem" }}>Meu App</h2>
+    <div className="flex h-screen bg-gray-100 text-gray-800">
+      <aside className="sidebar">
+        <h1 className="sidebar-title">Dashboard</h1>
+        <nav className="sidebar-nav">
+          <Link to="/dashboard">Dashboard</Link>
+          <Link to="/settings">Configurações</Link>
+        </nav>
+      </aside>
 
-      <nav style={{ flex: 1 }}>
-        <ul style={{ listStyle: "none", padding: 0 }}>
-          <li style={{ marginBottom: "1rem", cursor: "pointer" }}>
-            <a href="/" style={{ color: "white", textDecoration: "none" }}>
-              Dashboard
-            </a>
-          </li>
-          <li style={{ marginBottom: "1rem", cursor: "pointer" }}>
-            <a href="/tarefas" style={{ color: "white", textDecoration: "none" }}>
-              Tarefas
-            </a>
-          </li>
-          <li style={{ marginBottom: "1rem", cursor: "pointer" }}>
-            <a href="/compromissos" style={{ color: "white", textDecoration: "none" }}>
-              Compromissos
-            </a>
-          </li>
-        </ul>
-      </nav>
-
-      <button
-        onClick={onLogout}
-        style={{
-          backgroundColor: "#ef4444",
-          border: "none",
-          color: "white",
-          padding: "0.5rem 1rem",
-          cursor: "pointer",
-          borderRadius: 4,
-        }}
-      >
-        Sair
-      </button>
-    </aside>
+      <main className="content">
+        <Outlet />
+      </main>
+    </div>
   );
 }

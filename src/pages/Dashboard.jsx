@@ -276,9 +276,8 @@ export default function Dashboard() {
 
   return (
     <div
-      className={`flex h-screen ${
-        darkMode ? "bg-gray-900 text-gray-100" : "bg-gray-100 text-gray-800"
-      }`}
+      className={`flex h-screen ${darkMode ? "bg-gray-900 text-gray-100" : "bg-gray-100 text-gray-800"
+        }`}
       style={{ flexDirection: "column" }}
     >
       {notification && (
@@ -294,8 +293,8 @@ export default function Dashboard() {
                   ? "#15803d"
                   : "#16a34a"
                 : darkMode
-                ? "#b91c1c"
-                : "#dc2626",
+                  ? "#b91c1c"
+                  : "#dc2626",
             color: "white",
             padding: "1rem 2rem",
             borderRadius: "0 0 0.5rem 0.5rem",
@@ -369,7 +368,12 @@ export default function Dashboard() {
                     style={{
                       textDecoration: done ? "line-through" : "none",
                       cursor: "pointer",
-                      flexGrow: 1,
+                      fontSize: "0.75rem",       // fonte pequena
+                      lineHeight: "1",           // altura de linha justa
+                      padding: "0",              // sem padding
+                      margin: "0",               // sem margem
+                      display: "block",          // ocupa só o necessário
+                      color: done ? "#9ca3af" : "inherit", // cor mais clara se concluída
                     }}
                   >
                     <input
@@ -429,7 +433,7 @@ export default function Dashboard() {
                 <li
                   key={id}
                   className="flex items-center justify-between"
-                  style={{ gap: "0.5rem" }}
+                  style={{ gap: "0.5rem", color: "white" }}
                 >
                   <span style={{ width: 60, fontWeight: "bold" }}>{hora}</span>
                   <span>{titulo}</span>
@@ -441,6 +445,7 @@ export default function Dashboard() {
                       color: "#ef4444",
                       cursor: "pointer",
                       fontWeight: "bold",
+                      marginLeft: "auto", // faz o botão ir para a ponta direita
                     }}
                     title="Excluir compromisso"
                   >
@@ -464,7 +469,7 @@ export default function Dashboard() {
                 type="file"
                 accept=".pdf,.doc,.docx,.xls,.xlsx,.txt"
                 multiple
-                name="pdfs" 
+                name="pdfs"
                 className="hidden-input"
                 onChange={handleFileChange}
               />
@@ -497,6 +502,7 @@ export default function Dashboard() {
                       color: "#ef4444",
                       cursor: "pointer",
                       fontWeight: "bold",
+                      marginLeft: "auto",
                     }}
                     title="Remover arquivo"
                   >
