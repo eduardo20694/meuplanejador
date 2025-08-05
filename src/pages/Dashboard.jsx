@@ -436,7 +436,7 @@ export default function Dashboard() {
                   style={{ gap: "0.5rem", color: "white" }}
                 >
                   <span style={{ width: 60, fontWeight: "bold" }}>{hora}</span>
-                  <span>{titulo}</span>
+                  <span style={{ color: darkMode ? 'white' : 'black' }}>{titulo}</span>
                   <button
                     onClick={() => removeAppointment(id)}
                     style={{
