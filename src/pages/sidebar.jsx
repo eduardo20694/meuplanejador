@@ -2,16 +2,22 @@ import { useRef, useState, useEffect } from "react";
 import { Link, Outlet } from "react-router-dom";
 import "../styles/sidebar.css";
 
-export default function AppWithSidebar({ userId }) {
-  const [avatar, setAvatar] = useState(null); // avatar inicia vazio
+export default function AppWithSidebar({ token }) {
+  const [avatar, setAvatar] = useState(null);
   const fileInputRef = useRef(null);
 
-  // Carrega avatar do backend ao iniciar
+  // Carregar avatar do usuário logado
   useEffect(() => {
     const fetchAvatar = async () => {
+      if (!token) return;
       try {
         const res = await fetch(
-          `https://apirest-production-b815.up.railway.app/api/avatar/${userId}`
+          "https://apirest-production-b815.up.railway.app/api/avatar",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
         );
         const data = await res.json();
         if (res.ok && data.avatarUrl) {
@@ -23,47 +29,46 @@ export default function AppWithSidebar({ userId }) {
         console.error("Erro ao carregar avatar:", err);
       }
     };
+    fetchAvatar();
+  }, [token]);
 
-    if (userId) fetchAvatar();
-  }, [userId]);
-
-  // Função chamada ao selecionar arquivo
+  // Upload/alterar avatar
   const handleFileChange = async (event) => {
     const file = event.target.files[0];
-    if (file) {
-      // Preview instantâneo
-      const url = URL.createObjectURL(file);
-      setAvatar(url);
+    if (!file || !token) return;
 
-      try {
-        const formData = new FormData();
-        formData.append("avatar", file);
+    const url = URL.createObjectURL(file);
+    setAvatar(url);
 
-        // Envia para o backend
-        const res = await fetch(
-          `https://apirest-production-b815.up.railway.app/api/avatar/upload/${userId}`,
-          {
-            method: "POST",
-            body: formData,
-          }
-        );
+    try {
+      const formData = new FormData();
+      formData.append("avatar", file);
 
-        const data = await res.json();
-        if (res.ok && data.avatarUrl) {
-          setAvatar(
-            `https://apirest-production-b815.up.railway.app${data.avatarUrl}`
-          );
-        } else {
-          alert(data.error || "Erro ao enviar avatar");
+      const res = await fetch(
+        "https://apirest-production-b815.up.railway.app/api/avatar/upload",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData,
         }
-      } catch (err) {
-        console.error(err);
-        alert("Erro ao enviar avatar");
+      );
+
+      const data = await res.json();
+      if (res.ok && data.avatarUrl) {
+        setAvatar(
+          `https://apirest-production-b815.up.railway.app${data.avatarUrl}`
+        );
+      } else {
+        alert(data.error || "Erro ao enviar avatar");
       }
+    } catch (err) {
+      console.error(err);
+      alert("Erro ao enviar avatar");
     }
   };
 
-  // Função chamada ao clicar na imagem/overlay
   const handleAvatarClick = () => {
     fileInputRef.current.click();
   };
@@ -73,13 +78,11 @@ export default function AppWithSidebar({ userId }) {
       <aside className="sidebar">
         <h1 className="sidebar-title">Bem vindo ao Planejador Pessoal</h1>
 
-        {/* Navegação */}
         <nav className="sidebar-nav">
           <Link to="/dashboard">Planejador</Link>
           <Link to="/settings">Configurações</Link>
         </nav>
 
-        {/* Avatar clicável */}
         <div className="avatar-container" onClick={handleAvatarClick}>
           {avatar ? (
             <img src={avatar} alt="Avatar do usuário" className="sidebar-avatar" />
