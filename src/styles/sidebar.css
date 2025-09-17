@@ -1,3 +1,6 @@
+/* Importar a fonte no index.html ou CSS */
+@import url('https://fonts.googleapis.com/css2?family=Pacifico&display=swap');
+
 /* === Layout Principal === */
 .flex {
   display: flex;
@@ -23,8 +26,6 @@
   transition: background-color 0.3s, border-color 0.3s;
 }
 
-/* Importar a fonte no index.html ou CSS */
-@import url('https://fonts.googleapis.com/css2?family=Pacifico&display=swap');
 
 /* Título Sidebar estilizado tipo Instagram */
 .sidebar-title {
