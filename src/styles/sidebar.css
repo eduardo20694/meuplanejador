@@ -23,17 +23,37 @@
   transition: background-color 0.3s, border-color 0.3s;
 }
 
-/* Título Sidebar */
+/* Importar a fonte no index.html ou CSS */
+@import url('https://fonts.googleapis.com/css2?family=Pacifico&display=swap');
+
+/* Título Sidebar estilizado tipo Instagram */
 .sidebar-title {
   font-size: 1.8rem;
   font-weight: 800;
   margin-bottom: 1.5rem;
-  color: #111827;
   width: 100%;
   text-align: left;
   letter-spacing: -0.5px;
-  transition: color 0.3s;
+  background: linear-gradient(90deg, #f58529, #dd2a7b, #8134af, #515bd4);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  transition: all 0.3s ease;
+  cursor: default;
 }
+/* Efeito hover para animar o gradiente */
+.sidebar-title:hover {
+  background-size: 400% 400%;
+  animation: gradientShift 3s ease infinite;
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+
 
 /* Navegação */
 .sidebar-nav {
