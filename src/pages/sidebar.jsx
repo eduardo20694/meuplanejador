@@ -125,7 +125,7 @@ export default function AppWithSidebar({ token: propToken, userId }) {
   return (
     <div className="flex">
       <aside className="sidebar">
-        <h1 className="sidebar-title">Bem vindo ao Planejador Pessoal</h1>
+        <h1 className="sidebar-title">Schedio</h1>
 
         <nav className="sidebar-nav" aria-label="Navegação">
           <Link to="/dashboard">Planejador</Link>
@@ -176,11 +176,7 @@ export default function AppWithSidebar({ token: propToken, userId }) {
         </div>
       )}
 
-      <div style={{ position: "fixed", left: 8, bottom: 8, fontSize: 12, color: "#666" }}>
-        <div>avatar src: {avatar ? avatar.slice(0, 60) + (avatar.length > 60 ? "…" : "") : "null"}</div>
-        <div>token: {token ? "✓ presente" : "× ausente"}</div>
-        {loading && <div>Carregando...</div>}
-      </div>
+      
     </div>
   );
 }
