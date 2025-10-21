@@ -300,11 +300,11 @@ ul.list li label[style*="line-through"] {
 
 /* Botão adicionar verde para compromissos */
 .label-button.bg-green-600 {
-  background-color: #16a34a; /* verde */
+  background-color: #0bed1e; /* verde */
 }
 
 .label-button.bg-green-600:hover {
-  background-color: #15803d; /* verde escuro */
+  background-color: #166a0b; /* verde escuro */
 }
 
 /* Botão excluir (x) */
